@@ -29,7 +29,15 @@ SECRET_KEY = 'db&(-6l$%8agn42eyl7yl&0xeu*&wt(1_qw#7269g=s+o-6lx+'
 
 DEBUG = True
 
+# ALLOWED_HOSTS = ['api.meiduo.site', 'loaclhost','127.0.0.1', 'www.meiduo.site']
 ALLOWED_HOSTS = []
+
+# CORS_ORIGIN_WHITELIST = (
+#     'http://127.0.0.1:8080',
+#     'http://localhost:8080',
+#     'http://www.meiduo.site:8080',
+# )
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 
 
 # Application definition
@@ -44,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'verfiycode',
+    'corsheaders',
 ]
 
 # 中间件
@@ -56,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'meiduo_mall.urls'
@@ -178,6 +188,14 @@ CACHES = {
     "image_code": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    # 短信验证码保存到redis
+    "msg_code": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

@@ -2,6 +2,7 @@ from django.contrib.auth import login
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from .models import User
+from django_redis import get_redis_connection
 import re
 
 # Create your views here.
@@ -43,7 +44,16 @@ class RegisterView(View):
 
             return HttpResponse('手机号格式错误', status=403)
 
-        # 处理
+        # 处理 短信验证
+        redis_msg_cli = get_redis_connection('msg_code')
+        msg_code = redis_msg_cli.get(mobile)
+        if msg_code is None:
+            return HttpResponse('短信验证码已过期，请重新获取验证码')
+        # 删除存在redis中的验证码防止二次使用
+        redis_msg_cli.delete(mobile)
+        redis_msg_cli.delete(mobile + '_flag')
+        if msg_code.decode() != msg_code:
+            return HttpResponse('短信验证码输入错误')
 
         # 添加用户信息到数据库，保存user比较特殊需要考虑密码加密性，所以需要使用create_user()方法
         user = User.objects.create_user(username=username,
@@ -63,7 +73,10 @@ class UsernameView(View):
         # 接受请求
         # 验证
         # 处理
-        count = User.objects.filter(username=username).count()
+        try:
+            count = User.objects.filter(username=username).count()
+        except Exception as e:
+            return JsonResponse({'code': 400, 'errmsg': '数据库查询出错'})
         # 响应
         return JsonResponse({'count': count, 'code': 0, 'errmsg': 'OK'})
 
@@ -73,7 +86,10 @@ class MobileView(View):
         # 接受请求
         # 验证
         # 处理
-        count = User.objects.filter(mobile=mobile).count()
+        try:
+            count = User.objects.filter(mobile=mobile).count()
+        except Exception as e:
+            return JsonResponse({'code': 400, 'errmsg': '数据库查询出错'})
         # 响应
         return JsonResponse({'count': count, 'code': 0, 'errmsg': 'OK'})
 
