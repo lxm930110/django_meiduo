@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'users',
     'verfiycode',
     'corsheaders',
+    'contents',
 ]
 
 # 中间件
@@ -61,7 +62,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -252,3 +253,9 @@ LOGGING = {
 
 # 指定用户模型类
 AUTH_USER_MODEL = 'users.User' # 应用名.模型类名
+
+# 指定登录视图URL地址
+LOGIN_URL = '/login'
+
+# 指定认证后端
+AUTHENTICATION_BACKENDS = ['meiduo_mall.utils.authenticate.MeiDuoModleBackend']

@@ -5,6 +5,7 @@ from django.views import View
 from meiduo_mall.libs.captcha.captcha import captcha
 from meiduo_mall.libs.yuntongxun.sms import CCP
 from random import randint
+from celery_tasks.sms.tasks import send_sms
 
 
 class ImageCodeView(View):
@@ -69,7 +70,8 @@ class MsgCodeView(View):
         redis_line.setex(mobile +'_flag',60,1)
         redis_line.execute()
         # 给客户发送短信验证码
-        CCP().send_template_sms('18768469597', [msg_code, 5], 1)
+        # CCP().send_template_sms('18768469597', [msg_code, 5], 1)
+        send_sms.delay(mobile, msg_code)
         # 响应
         return JsonResponse({'code':200,'errmsg':'OK'})
 
